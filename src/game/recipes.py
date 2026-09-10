@@ -41,19 +41,19 @@ class RecipeChain:
         elif isinstance(other, RecipeChain):
             return RecipeChain(self.steps + other.steps)
         elif isinstance(other, RecipeFinish):
-            Recipe.register_recipe(Recipe(other.recipe_id, self.steps))
+            other.rm.register_recipe(Recipe(other.recipe_id, self.steps))
         elif isinstance(other, RecipeGetSteps):
             return Recipe("", self.steps)
         else:
             raise NotImplemented
 
 class RecipeFinish:
-    def __init__(self, recipe_id: str) -> None:
+    def __init__(self, recipe_id: str, rm) -> None:
         self.recipe_id = recipe_id
+        self.rm = rm
 
 class RecipeGetSteps: pass
 
-recipe_table = {}
 
 class Recipe:
     def __init__(self, recipe_id: str, steps: RecipeChain) -> None:
@@ -73,25 +73,26 @@ class Recipe:
         return RecipeStep(RecipeStepType.STIR, seconds)
 
     @staticmethod
-    def finish(recipe_id: str) -> RecipeFinish:
-        return RecipeFinish(recipe_id)
+    def finish(recipe_id: str, rm) -> RecipeFinish:
+        return RecipeFinish(recipe_id, rm)
 
     @staticmethod
     def get_steps() -> RecipeGetSteps:
         return RecipeGetSteps()
 
-    @staticmethod
-    def register_recipe(recipe) -> None:
-        recipe_table[recipe.id] = recipe
+class RecipeManager:
+    def __init__(self) -> None:
+        self.recipe_table: dict[str, Recipe] = {}
 
-    @staticmethod
-    def try_steps(tried) -> str | None:
-        for rec in recipe_table.values():
+    def register_recipe(self, recipe: Recipe) -> None:
+        self.recipe_table[recipe.id] = recipe
+
+    def try_steps(self, tried: Recipe) -> str | None:
+        for rec in self.recipe_table.values():
             if len(tried.steps) != len(rec.steps):
                 continue
             if any(r.incorrect(t) for r, t in zip(rec.steps, tried.steps)):
                 continue
             return rec.id
-
         return None
 

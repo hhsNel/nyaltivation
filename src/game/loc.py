@@ -1,8 +1,8 @@
 from enum import Enum, auto
 
-class Language(Enum):
-    EN = auto()
-    NYA = auto()
+class Language(str, Enum):
+    EN = "en"
+    NYA = "nya"
 
 class Loc:
     def __init__(self, en: str, nya: str) -> None:
