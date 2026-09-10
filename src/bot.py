@@ -14,6 +14,7 @@ from game.recipes import RecipeManager
 from game.recipe_table import setup_recipe_table
 from ui.inventory import inventory_cog
 from ui.player import player_cog
+from ui.recipes import recipes_cog
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("bot")
@@ -40,6 +41,7 @@ class NyaltivationBot(commands.Bot):
         await self.db.connect()
         await self.add_cog(inventory_cog(self))
         await self.add_cog(player_cog(self))
+        await self.add_cog(recipes_cog(self))
         if DEV_GUILD is not None:
             logger.info(f"Syncing to {DEV_GUILD}")
             guild = discord.Object(id=DEV_GUILD)

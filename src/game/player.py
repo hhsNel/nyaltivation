@@ -3,15 +3,18 @@ from game.db import Database
 from game.loc import Language
 import typing
 from enum import Enum
+from game.player_actions.refining import PlayerRefiningState
 
 class PlayerActionType(Enum):
-    IDLE,
-    REFINING,
+    IDLE = "idle"
+    REFINING = "refining"
 
 class Player:
     def __init__(self, uid: int, db: Database) -> None:
         self.uid = uid
         self.db = db
+        self.state: PlayerActionType = PlayerActionType.IDLE
+        self.refining_data: PlayerRefiningState = PlayerRefiningState(self)
 
     async def load_all(self) -> None:
         await self.load_inv()
@@ -44,6 +47,15 @@ class Player:
     async def set_language(self, lang: Language) -> None:
         self.loc = lang
         await self.save_loc()
+
+    def assert_state(self, action: PlayerActionType) -> bool:
+        if self.state == PlayerActionType.IDLE:
+            self.state = action
+            return True
+        return self.state == action
+
+    def become_idle(self) -> None:
+        self.state = PlayerActionType.IDLE
 
 class PlayerManager:
     def __init__(self, db: Database):
