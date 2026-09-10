@@ -6,24 +6,13 @@ class test_cog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="get_test", description="test database SELECT")
-    async def get_test(self, interaction: discord.Interaction) -> None:
-        await interaction.response.send_message(f"{interaction.user.mention} has {await self.bot.db.get_value(interaction.user.id, "points", 0)} points")
-
-    @app_commands.command(name="set_test", description="test database INSERT")
-    @app_commands.describe(amount="points to add")
-    async def set_test(self, interaction: discord.Interaction, amount: int = 1) -> None:
-        pts = await self.bot.db.get_value(interaction.user.id, "points", 0)
-        pts += amount
-        await self.bot.db.set_value(interaction.user.id, "points", pts)
-        await interaction.response.send_message(f"{interaction.user.mention} earned {amount} points and now has {pts} points")
-
-    @commands.command()
-    async def get_test(self, ctx: commands.Context) -> None:
+    @commands.hybrid_command(name="get_test", description="test database SELECT")
+    async def get_test_prefix(self, ctx: commands.Context) -> None:
         await ctx.send(f"{ctx.author.mention} has {await self.bot.db.get_value(ctx.author.id, "points", 0)} points")
 
-    @commands.command()
-    async def set_test(self, ctx: commands.Context, amount: int = 1) -> None:
+    @commands.hybrid_command(name="set_test", description="test database INSERT")
+    @app_commands.describe(amount="points to add")
+    async def set_test_prefix(self, ctx: commands.Context, amount: int = 1) -> None:
         pts = await self.bot.db.get_value(ctx.author.id, "points", 0)
         pts += amount
         await self.bot.db.set_value(ctx.author.id, "points", pts)
